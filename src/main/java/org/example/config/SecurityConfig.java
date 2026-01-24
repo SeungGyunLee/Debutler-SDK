@@ -30,6 +30,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .httpBasic().disable()
                 // CSRF 보안 끄기
                 // CSRF는 해커가 사용자의 브라우저 쿠키를 훔쳐서 공격하는 방식
                 .csrf().disable()
@@ -42,9 +43,11 @@ public class SecurityConfig {
 
                 //URL별 권한 관리
                 .authorizeHttpRequests()
-                    // /api/auth/** 로 시작하는 주소(회원가입, 로그인 등)는 누구나 접근 가능(permitAll)
-                    .antMatchers("/api/auth/**").permitAll()
-                    // 나머지는 인증된 사람만 접근 가능
+                // 로그인, 회원가입, 약관 목록 조회는 누구나 가능 (Public)
+                .antMatchers("/api/v1/auth/**", "/api/v1/policies/**").permitAll()
+
+                // 나머지는 토큰이 있어야 접근 가능 (Authenticated)
+                .antMatchers("/api/v1/**").authenticated()
                     .anyRequest().authenticated()
                 .and()
 

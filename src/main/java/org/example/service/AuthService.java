@@ -5,6 +5,7 @@ import net.bytebuddy.asm.Advice;
 import org.example.config.JwtAuthenticationFilter;
 import org.example.config.JwtTokenProvider;
 import org.example.domain.User;
+import org.example.dto.LoginResponseDto;
 import org.example.dto.SignupResquestDto;
 import org.example.dto.LoginRequestDto;
 import org.example.repository.UserRepository;
@@ -55,7 +56,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public String login(LoginRequestDto requestDto) {
+    public LoginResponseDto login(LoginRequestDto requestDto) {
 
         // 아이디로 유저 서칭
         User user = userRepository.findByUsername(requestDto.getUsername())
@@ -66,7 +67,18 @@ public class AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        return  jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
+        String token = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
+        long expiresIn = 1800;
+
+        return LoginResponseDto.builder()
+                .accessToken(token)
+                .expiresInSec(expiresIn)
+                .user(LoginResponseDto.UserDto.builder()
+                        .userId(user.getId())
+                        .email(user.getUsername()) // 명세서의 email = 우리의 username
+                        .name(user.getNickname())  // 명세서의 name = 우리의 nickname
+                        .build())
+                .build();
     }
 
 

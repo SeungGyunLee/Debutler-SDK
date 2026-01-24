@@ -9,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-db:3306/my_database?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://localhost:3306/my_database?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true"
       SPRING_DATASOURCE_USERNAME: "root"
       SPRING_DATASOURCE_PASSWORD: "root" # (테스트용 비번)
     depends_on:
@@ -24,6 +24,8 @@ services:
     environment:
       MYSQL_DATABASE: my_database
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_password
     volumes:
       - db_data:/var/lib/mysql # 데이터를 껐다 켜도 안 날아가게 저장
 
