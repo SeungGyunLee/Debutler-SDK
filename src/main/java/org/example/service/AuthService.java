@@ -1,85 +1,84 @@
 package org.example.service;
 
-import lombok.Setter;
-import net.bytebuddy.asm.Advice;
-import org.example.config.JwtAuthenticationFilter;
 import org.example.config.JwtTokenProvider;
 import org.example.domain.User;
-import org.example.dto.LoginResponseDto;
-import org.example.dto.SignupResquestDto;
+// 💡 따로 만든 DTO 파일들을 각각 임포트
 import org.example.dto.LoginRequestDto;
+import org.example.dto.LoginResponseDto;
+import org.example.dto.SignupRequestDto;
+import org.example.dto.SignupResponseDto;
 import org.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
-
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; // 비밀번호 암호화
-    private final JwtTokenProvider jwtTokenProvider; // 토큰 생성
 
-    // 회원가입 로직
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    // 1. 회원가입
     @Transactional
-    public void signup(SignupResquestDto resquestDto) {
-        // 아이디 중복 검사
-        if (userRepository.existsByUsername(resquestDto.getUsername())) {
-            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+    public SignupResponseDto signup(SignupRequestDto requestDto) { // 반환타입 변경
+
+        // 이메일 중복 체크 (email 사용)
+        if (userRepository.existsByEmail(requestDto.getEmail())) {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
         // 비밀번호 암호화
-        String encodedPassword = passwordEncoder.encode(resquestDto.getPassword());
+        String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
 
-
-        if (!resquestDto.isServiceAgreed()) {
-            throw new IllegalArgumentException("필수 약관에 동의해야 합니다.");
-        }
-
-        // 유저 객체 생성
+        // 유저 생성
         User user = User.builder()
-                .username(resquestDto.getUsername())
+                .email(requestDto.getEmail())       // email 저장
                 .password(encodedPassword)
-                .nickname(resquestDto.getNickname())
+                .name(requestDto.getName())
                 .roles(Collections.singletonList("ROLE_USER"))
-                .serviceAgreeAt(LocalDateTime.now())
                 .build();
-        // DB저장
-        userRepository.save(user);
 
+        // DB 저장
+        User savedUser = userRepository.save(user);
 
+        // 결과 반환 (명세서 규격)
+        return SignupResponseDto.builder()
+                .userId(String.valueOf(savedUser.getId()))
+                .email(savedUser.getEmail())
+                .build();
     }
 
+    // 2. 로그인
     @Transactional(readOnly = true)
     public LoginResponseDto login(LoginRequestDto requestDto) {
 
-        // 아이디로 유저 서칭
-        User user = userRepository.findByUsername(requestDto.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 아이디입니다."));
+        // 이메일로 찾기
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 이메일입니다."));
 
-        // 비밀번호 비교
+        // 비번 확인
         if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("비밀번호 불일치");
         }
 
-        String token = jwtTokenProvider.createToken(user.getUsername(), user.getRoles());
-        long expiresIn = 1800;
+        // 토큰 발급
+        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRoles());
+        long expiresIn = 1800; // 30분
 
+        // 응답 객체 생성
         return LoginResponseDto.builder()
                 .accessToken(token)
                 .expiresInSec(expiresIn)
-                .user(LoginResponseDto.UserDto.builder()
-                        .userId(user.getId())
-                        .email(user.getUsername()) // 명세서의 email = 우리의 username
-                        .name(user.getNickname())  // 명세서의 name = 우리의 nickname
+                .user(LoginResponseDto.UserInfoDto.builder()
+                        .userId(String.valueOf(user.getId()))
+                        .email(user.getEmail())
+                        .name(user.getName())
                         .build())
                 .build();
     }
-
-
 }

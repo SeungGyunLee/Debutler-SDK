@@ -1,6 +1,5 @@
 package org.example.dto.common;
 
-import com.sun.tools.javac.util.DefinedBy;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

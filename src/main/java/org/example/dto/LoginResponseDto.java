@@ -1,21 +1,30 @@
 package org.example.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginResponseDto {
-    private String accessToken;   // JWT 토큰
-    private long expiresInSec;    // 만료 시간 (초 단위)
-    private UserDto user;         // 유저 정보 객체 (명세서 요구사항)
 
-    // 내부 클래스 (User 정보 담는 그릇)
+    private String accessToken;  // JWT 토큰
+    private long expiresInSec;   // 만료 시간 (예: 1800)
+
+    // 명세서에 있는 중첩된 user 객체
+    private UserInfoDto user;
+
+    // 내부에서만 쓸 DTO라 static inner class로 정의
     @Data
     @Builder
-    public static class UserDto {
-        private Long userId;      // u_123
-        private String email;     // user@x.com (username)
-        private String name;      // 홍길동 (nickname)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserInfoDto {
+        private String userId;   // "u_1" 같은 ID
+        private String email;
+        private String name;
     }
 }

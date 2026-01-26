@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Getter @Builder @NoArgsConstructor @AllArgsConstructor
-@Table(name = "mydata_invest")
+@Table(name = "invest_accounts", catalog = "mock_invest")
 public class MyDataInvest {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

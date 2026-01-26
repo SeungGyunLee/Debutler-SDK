@@ -27,8 +27,8 @@ public class UserController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam String type) { // type: CRYPTO 또는 MYDATA
 
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+        User user = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
         if ("CRYPTO".equalsIgnoreCase(type)) {
             user.agreeCryptoService(); // 가상자산 약관 동의 처리

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConsentRepository extends JpaRepository<Consent, Long> {
+    // 특정 유저의 모든 동의 내역 조회
     List<Consent> findAllByUser(User user);
-    Optional<Consent> findByUserAndTypeAndVersion(User user, String type, String version);
+
+    Optional<Consent> findByUserAndType(User user, String type);
 }

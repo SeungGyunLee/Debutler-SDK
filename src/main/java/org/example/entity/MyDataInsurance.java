@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Getter @Builder @NoArgsConstructor @AllArgsConstructor
-@Table(name = "mydata_insurance")
+@Table(name = "insurances", catalog = "mock_insurance")
 public class MyDataInsurance {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -26,8 +26,8 @@ public class MyDataReadService {
     public MyDataPortfolioDto getPortfolioByUsername(String username) {
 
         // 1. 유저 정보 조회
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
         Long userId = user.getId();
 

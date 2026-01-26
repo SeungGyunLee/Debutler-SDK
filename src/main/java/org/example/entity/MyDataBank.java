@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Getter @Builder @NoArgsConstructor @AllArgsConstructor
-@Table(name = "mydata_bank")
+@Table(name = "accounts", catalog = "mock_bank")
 public class MyDataBank {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

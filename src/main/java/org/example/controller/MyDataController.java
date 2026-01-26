@@ -20,17 +20,20 @@ public class MyDataController {
     private final MyDataReadService myDataReadService;
 
     // 1. 데이터 연동 (Sync)
+    // 프론트엔드 요청 예시: { "mock_token": "...", "user_search_id": "..." }
     @PostMapping("/connect")
     public ResponseEntity<String> connectMyData(
-            @AuthenticationPrincipal UserDetails userDetails, // 👈 로그인된 유저 정보 추출
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody Map<String, String> body
     ) {
-        // 서비스가 String username을 받기로 했으므로 유저명을 꺼냅니다.
         String username = userDetails.getUsername();
-        String mockToken = body.get("mock_token");
 
-        // 수정된 서비스 메서드 호출 (username 전달)
-        myDataSyncService.syncAllAssets(username, mockToken);
+        // [수정] Request Body에서 토큰과 CI값 추출
+        String mockToken = body.get("mock_token");
+        String userSearchId = body.get("user_search_id"); // 표준 API 필수 헤더값
+
+        // [수정] 서비스 메서드 호출 (파라미터 3개)
+        myDataSyncService.syncAllAssets(username, mockToken, userSearchId);
 
         return ResponseEntity.ok("연동 및 데이터 저장이 완료되었습니다.");
     }
@@ -38,11 +41,10 @@ public class MyDataController {
     // 2. 통합 포트폴리오 조회 (Read)
     @GetMapping("/portfolio")
     public ResponseEntity<MyDataPortfolioDto> getPortfolio(
-            @AuthenticationPrincipal UserDetails userDetails // 👈 여기도 동일하게 적용
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
         String username = userDetails.getUsername();
 
-        // ReadService도 username을 받도록 수정했다면 아래와 같이 호출합니다.
         MyDataPortfolioDto result = myDataReadService.getPortfolioByUsername(username);
 
         return ResponseEntity.ok(result);

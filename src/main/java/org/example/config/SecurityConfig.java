@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .and()
 
                 //URL별 권한 관리
-                .authorizeHttpRequests()
+                .authorizeRequests()
                 // 로그인, 회원가입, 약관 목록 조회는 누구나 가능 (Public)
                 .antMatchers("/api/v1/auth/**", "/api/v1/policies/**").permitAll()
 

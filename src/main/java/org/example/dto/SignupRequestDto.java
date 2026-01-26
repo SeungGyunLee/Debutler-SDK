@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequestDto {
-    private String email;    // username -> email로 변경
+public class SignupRequestDto {
+    private String email;    // 로그인 ID 역할
     private String password;
+    private String name;     // 사용자 이름
 }
